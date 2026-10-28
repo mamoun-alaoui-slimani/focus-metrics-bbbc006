@@ -1,0 +1,10 @@
+metric,median_focus_offset_um,hit_rate_at_documented_z16,unimodal_share,noise_shift_um_median,noise_shift_um_p90,ms_per_image,chromatic_offset_um,cross_channel_rsd_um
+Sum-modified Laplacian,3.764,0.078,0.531,0.1,0.425,1.769,0.502,0.282
+Variance of Laplacian,3.979,0.065,0.975,0.044,0.261,2.706,0.311,0.352
+High-frequency power ratio,5.132,0.02,0.967,0.151,22.051,3.895,0.193,0.401
+Vollath F4,5.388,0.016,0.999,0.015,0.055,0.876,-0.625,0.467
+Energy of gradient,4.785,0.027,0.994,0.018,0.092,1.079,-0.627,0.478
+Tenengrad (Sobel),5.547,0.016,0.996,0.009,0.034,4.697,-0.586,0.491
+Brenner gradient,5.111,0.021,0.995,0.011,0.045,0.561,-0.684,0.507
+Normalised variance,7.649,0.01,0.997,0.014,0.046,0.499,-0.282,0.528
+Variance,7.616,0.01,0.997,0.013,0.043,0.492,-0.268,0.556

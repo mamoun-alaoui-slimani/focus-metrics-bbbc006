@@ -1,0 +1,5 @@
+results/results*.csv
+scratch/
+run.log
+__pycache__/
+results/summary.csv
