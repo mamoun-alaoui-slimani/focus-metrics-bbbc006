@@ -1,5 +1,7 @@
 # Which autofocus metric actually works? A benchmark on 768 microscopy fields
 
+[![tests](https://github.com/mamoun-alaoui-slimani/focus-metrics-bbbc006/actions/workflows/tests.yml/badge.svg)](https://github.com/mamoun-alaoui-slimani/focus-metrics-bbbc006/actions/workflows/tests.yml)
+
 Autofocus in a fluorescence microscope comes down to one number per image: a
 **sharpness metric** that should peak at best focus. There are dozens of them,
 and the choice is usually made by habit. This repo compares nine classic metrics
@@ -23,7 +25,7 @@ labelled plane (10,752 images).
 Variance, normalised variance, variance of Laplacian, sum-modified Laplacian,
 Brenner gradient, Tenengrad (Sobel), energy of gradient, Vollath F4, and the
 fraction of spectral power above 15% of Nyquist. Implementations are in
-[`src/metrics.py`](src/metrics.py), each about five lines of NumPy/SciPy.
+[`src/focus_metrics/metrics.py`](src/focus_metrics/metrics.py), each about five lines of NumPy/SciPy.
 
 ## Finding 1: the sharpest plane is not the labelled one
 
@@ -98,11 +100,42 @@ Reading it:
 ## Run it
 
 ```bash
-pip install -r requirements.txt
+pip install -e ".[benchmark]"
 # download BBBC006_v1_images_z_{08,12,14,16,18,20,24}.zip from the BBBC page and unzip into DATA/
 python src/run_benchmark.py DATA results           # ~3 min on 4 cores; optional START END args to chunk
 python src/analyse.py results DATA                 # scorecard.csv + figures
 ```
+
+## Use the metrics in your own code
+
+The metrics are packaged as `focus_metrics` (NumPy + SciPy only):
+
+```python
+from focus_metrics import best_focus, focus_curve
+
+z_um = [-16, -8, -4, 0, 4, 8, 16]
+best_focus(stack, z=z_um)                       # sub-plane estimate, variance of Laplacian by default
+focus_curve(stack, metric="Brenner gradient")   # one value per plane
+```
+
+## Tests
+
+```bash
+pip install -e ".[test]"
+pytest
+```
+
+The tests run on synthetic fields with known focus, so they need no data
+download, and CI runs them with `ruff` on Python 3.10 to 3.13. They check that
+every metric is zero on a flat image, peaks at the in-focus plane, and decreases
+monotonically with blur; how each metric scales with detector gain; that
+derivative-based metrics ignore a constant background offset; and that the
+sub-plane parabola recovers a known vertex on the uneven BBBC006 plane spacing.
+Two checks are deliberately skipped: plain variance is not held to the
+monotonic-blur test (it measures contrast, not sharpness), and Vollath F4 is not
+offset-invariant (a background offset leaks in through the edge columns).
+
+---
 
 Mamoun Alaoui Slimani, MSc Applied Physics (EPFL). My MSc thesis was on image
 quality and optical characterisation for a multichannel fluorescence

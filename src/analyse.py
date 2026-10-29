@@ -23,6 +23,7 @@ import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import tifffile
+from focus_metrics import parabolic_peak
 
 RES, ROOT = sys.argv[1], sys.argv[2]
 df = pd.read_csv(os.path.join(RES, "results.csv"))
@@ -33,13 +34,7 @@ X = (np.array(ZS) - BEST) * DZ  # um relative to documented focus
 CH = {"w1": "Nuclei (Hoechst)", "w2": "Actin (phalloidin)"}
 
 def subplane(v):
-    i = int(np.argmax(v))
-    if i == 0 or i == len(v) - 1:
-        return X[i]
-    x0, x1, x2 = X[i-1:i+2]; y0, y1, y2 = v[i-1:i+2]
-    A = np.array([[x0**2, x0, 1], [x1**2, x1, 1], [x2**2, x2, 1]])
-    a, b, _ = np.linalg.solve(A, [y0, y1, y2])
-    return float(np.clip(-b / (2*a), x0, x2)) if a < 0 else X[i]
+    return parabolic_peak(X, v)
 
 def unimodal(v):
     d = np.sign(np.diff(v)); d = d[d != 0]
@@ -107,7 +102,7 @@ fig.tight_layout(); fig.savefig(os.path.join(RES, "fig2_scorecard.png"), dpi=200
 
 # Fig 3: normalised focus curves for three representative metrics
 fig, axes = plt.subplots(1, 2, figsize=(9, 3.8), sharey=True)
-for ax, ch in zip(axes, CH):
+for ax, ch in zip(axes, CH, strict=False):
     for mt in ["Variance of Laplacian", "Brenner gradient", "Variance"]:
         v = clean[(clean.channel == ch) & (clean.metric == mt)][VC].to_numpy()
         v = (v - v.min(1, keepdims=True)) / np.ptp(v, 1, keepdims=True).clip(1e-12)
@@ -124,7 +119,7 @@ ims = [tifffile.imread(glob.glob(os.path.join(ROOT, f"BBBC006_v1_images_z_{z:02d
 crop = (slice(110, 410), slice(200, 500))
 lo, hi = np.percentile(ims[ZS.index(18)][crop], [1, 99.8])
 fig, axes = plt.subplots(1, len(ZS), figsize=(14, 2.6))
-for ax, x, im in zip(axes, X, ims):
+for ax, x, im in zip(axes, X, ims, strict=True):
     ax.imshow(im[crop], cmap="gray", vmin=lo, vmax=hi); ax.axis("off")
     ax.set_title(f"{x:+.0f} µm" + (" (label)" if x == 0 else ""), fontsize=9)
 fig.suptitle(f"Nuclei, field {ex.well} {ex.site}, through focus", fontsize=10)

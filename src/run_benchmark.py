@@ -6,13 +6,13 @@ Ground truth: BBBC006 acquires the optimal focal plane at z = 16, with 2 um
 between planes. A metric "hits" a field if its maximum over the available
 planes is at z = 16.
 """
-import sys, os, re, glob, time, json, zlib
+import sys, os, re, glob, time, zlib
 import numpy as np
 import pandas as pd
 import tifffile
 from concurrent.futures import ProcessPoolExecutor
 sys.path.insert(0, os.path.dirname(__file__))
-from metrics import METRICS
+from focus_metrics import METRICS
 
 ROOT, OUT = sys.argv[1], sys.argv[2]
 os.makedirs(OUT, exist_ok=True)
@@ -45,7 +45,7 @@ def process(key, paths):
             rows.append(dict(well=well, site=site, channel=ch, noise=nl, metric=name,
                              z_pred=ZS[int(np.argmax(vals))], ms_per_image=dt * 1e3,
                              mean_intensity=float(stack[ZS.index(BEST)].mean()),
-                             **{f"v_z{z:02d}": v for z, v in zip(ZS, vals)}))
+                             **{f"v_z{z:02d}": v for z, v in zip(ZS, vals, strict=True)}))
     return rows
 
 if __name__ == "__main__":

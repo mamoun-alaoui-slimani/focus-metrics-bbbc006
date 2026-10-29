@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "focus-metrics"
+version = "0.1.0"
+description = "Classic autofocus (sharpness) metrics for microscopy, benchmarked on BBBC006"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Mamoun Alaoui Slimani" }]
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy"]
+
+[project.optional-dependencies]
+benchmark = ["pandas", "tifffile", "imagecodecs", "matplotlib"]
+test = ["pytest", "ruff"]
+
+[project.urls]
+Repository = "https://github.com/mamoun-alaoui-slimani/focus-metrics-bbbc006"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = ["focus_metrics"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 150
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "B"]
+ignore = ["E401", "E701", "E702", "E741"]
